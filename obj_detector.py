@@ -64,26 +64,29 @@ def predict(img_path, threshold):
     for obj in set(pred_class):
         obj_counts[obj] = pred_class.count(obj)
 
-    return pred_boxes, pred_class, obj_counts
+   
+    return pred_boxes, pred_class, obj_counts, pred_score[:pred_t+1]
 
 
-def object_detection(img_path, threshold=0.5, rect_th=3, text_size=2, text_th=3):
-    """
+def object_detection(img_path, threshold=0.85, rect_th=3, text_size=1, text_th=3):
+    """ 
     Main functions gets predictions and creates image.
     """
 
     # Run prediction function to get predictions
-    boxes, pred_cls, object_count = predict(img_path, threshold)
-
+    boxes, pred_cls, object_count, pred_score = predict(img_path, threshold)
+    
     # Load image using OpenCV
-    image = cv2.imread(img_path)
 
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
+    image = cv2.imread(img_path) 
+    
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
+    
+    
     for i in range(len(boxes)):
-        cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0, 255, 0), thickness=rect_th)
-        cv2.putText(image, pred_cls[i], boxes[i][0],  cv2.FONT_HERSHEY_SIMPLEX,
-                    text_size, (0, 255, 0), thickness=text_th)
+        cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0,255,0), thickness=rect_th) # Draw Rectangle with the coordinates
+        cv2.putText(image, pred_cls[i] + " " + str(pred_score[i]), boxes[i][0],  cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th) # Write the prediction class
+
 
     results = {}
 
