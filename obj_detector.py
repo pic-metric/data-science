@@ -26,36 +26,39 @@ COCO_INSTANCE_CATEGORY_NAMES = [
     'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
+
 def predict(img_path, threshold):
     """Prediction Function"""
-    
+
     # load image from path
     image = Image.open(img_path)
-    
+
     # Define Tensor transfomation for Pytorch
     transform = T.Compose([T.ToTensor()])
-    
+
     # Transform image
     image = transform(image)
-    
+
     # Get prediction from model
     pred = model([image])
-    
+
     # Get prediction classes
     labels = list(pred[0]['labels'].numpy())
-    pred_class= [COCO_INSTANCE_CATEGORY_NAMES[i] for i in labels]
-    
+    pred_class = [COCO_INSTANCE_CATEGORY_NAMES[i] for i in labels]
+
     # Get Prediction boxes
-    pred_boxes = [[(i[0], i[1]), (i[2], i[3])] for i in list(pred[0]['boxes'].detach().numpy())] # Bounding boxes
+    pred_boxes = [[(i[0], i[1]), (i[2], i[3])]
+                  for i in list(pred[0]['boxes'].detach().numpy())]  # Bounding boxes
     pred_score = list(pred[0]['scores'].detach().numpy())
-    
+
     # Get indexes for predictions above the threshold
-    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1] # Get list of index with score greater than threshold.
-    
+    # Get list of index with score greater than threshold.
+    pred_t = [pred_score.index(x) for x in pred_score if x > threshold][-1]
+
     # Remove the predictions below the threshold
     pred_boxes = pred_boxes[:pred_t+1]
     pred_class = pred_class[:pred_t+1]
-        
+
     # Get object counts
     obj_counts = {}
     for obj in set(pred_class):
@@ -69,11 +72,12 @@ def object_detection(img_path, threshold=0.85, rect_th=3, text_size=1, text_th=3
     """ 
     Main functions gets predictions and creates image.
     """
-    
+
     # Run prediction function to get predictions
     boxes, pred_cls, object_count, pred_score = predict(img_path, threshold)
     
     # Load image using OpenCV
+
     image = cv2.imread(img_path) 
     
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
