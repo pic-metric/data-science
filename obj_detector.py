@@ -48,7 +48,7 @@ def predict(img_path, threshold):
 
     # Get Prediction boxes
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])]
-                  for i in list(pred[0]['boxes'].detach().numpy())]  # Bounding boxes
+                  for i in list(pred[0]['boxes'].detach().numpy())]  
     pred_score = list(pred[0]['scores'].detach().numpy())
 
     # Get indexes for predictions above the threshold
@@ -68,7 +68,7 @@ def predict(img_path, threshold):
     return pred_boxes, pred_class, obj_counts, pred_score[:pred_t+1]
 
 
-def object_detection(img_path, threshold=0.85, rect_th=3, text_size=1, text_th=3):
+def object_detection(img_path, threshold=0.75, rect_th=3, text_size=1, text_th=3):
     """ 
     Main functions gets predictions and creates image.
     """
@@ -82,10 +82,11 @@ def object_detection(img_path, threshold=0.85, rect_th=3, text_size=1, text_th=3
     
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
     
-    
+    # annotate image with bounding boxes, class predictions, and prediction scores
     for i in range(len(boxes)):
-        cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0,255,0), thickness=rect_th) # Draw Rectangle with the coordinates
-        cv2.putText(image, pred_cls[i] + " " + str(pred_score[i]), boxes[i][0],  cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th) # Write the prediction class
+        cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0,255,0), thickness=rect_th) 
+        cv2.putText(image, pred_cls[i] + " " + str(pred_score[i]), boxes[i][0],  
+        cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th) 
 
 
     results = {}
