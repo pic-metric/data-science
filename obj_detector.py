@@ -3,7 +3,6 @@ Predicts and counts objects in image files
 """
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import torchvision
@@ -66,7 +65,7 @@ def predict(img_path, threshold):
     return pred_boxes, pred_class, obj_counts
 
 
-def object_detection(img_path, threshold=0.5, rect_th=3, text_size=2, text_th=3):
+def object_detection(img_path, threshold=0.68, rect_th=3, text_size=2, text_th=3):
     """ 
     Main functions gets predictions and creates image.
     """
