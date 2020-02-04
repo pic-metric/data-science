@@ -18,5 +18,5 @@ outputs = ['Test_Output/1.bicycles-SDOT-flickr.jpg',
 for i in range(len(inputs)):
     results = object_detection(inputs[i])
     img = results['image']
-    cv2.imwrite(outputs[i], img)
+    cv2.imwrite(outputs[i], cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     print(results['object_count'])
