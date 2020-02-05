@@ -3,6 +3,7 @@ Predicts and counts objects in image files
 """
 
 import cv2
+import cvlib as cv 
 import numpy as np
 from PIL import Image
 import torchvision
@@ -27,17 +28,16 @@ COCO_INSTANCE_CATEGORY_NAMES = [
 ]
 
 
-def predict(img_path, threshold):
+def predict(img_str, threshold):
     """Prediction Function"""
-
-    # load image from path
-    image = Image.open(img_path)
+    # Open image from sting 
+    img = Image.open(BytesIO(img_str))
 
     # Define Tensor transfomation for Pytorch
     transform = T.Compose([T.ToTensor()])
 
     # Transform image
-    image = transform(image)
+    image = transform(img)
 
     # Get prediction from model
     pred = model([image])
@@ -64,17 +64,22 @@ def predict(img_path, threshold):
     for obj in set(pred_class):
         obj_counts[obj] = pred_class.count(obj)
 
+    if "person" in pred_class:
+        faces, conf = cv.detect_face(img)
+        obj_counts['faces'] = len(faces)
    
     return pred_boxes, pred_class, obj_counts, pred_score[:pred_t+1]
 
 
-def object_detection(img_path, threshold=0.75, rect_th=3, text_size=1, text_th=3):
+def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3):
     """ 
     Main functions gets predictions and creates image.
     """
+    #Query database to get image data
+    img_str = query(f"SELECT pic FROM Pics WHERE id = {img_ref}")    
 
     # Run prediction function to get predictions
-    boxes, pred_cls, object_count, pred_score = predict(img_path, threshold)
+    boxes, pred_cls, object_count, pred_score = predict(img_str, threshold)
     
     # Load image using OpenCV
 
