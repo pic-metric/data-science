@@ -104,7 +104,7 @@ def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3)
         cv2.putText(image, pred_class[i] + " " + str(pred_score[i]), boxes[i][0],  
         cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th) 
     
-
+    image = BytesIO(image)
     
     results = {}
 
