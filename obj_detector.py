@@ -28,10 +28,8 @@ COCO_INSTANCE_CATEGORY_NAMES = [
 ]
 
 
-def predict(img_str, threshold):
+def predict(img, threshold):
     """Prediction Function"""
-    # Open image from sting 
-    img = Image.open(BytesIO(img_str))
 
     # Define Tensor transfomation for Pytorch
     transform = T.Compose([T.ToTensor()])
@@ -63,10 +61,6 @@ def predict(img_str, threshold):
     obj_counts = {}
     for obj in set(pred_class):
         obj_counts[obj] = pred_class.count(obj)
-
-    if "person" in pred_class:
-        faces, conf = cv.detect_face(img)
-        obj_counts['faces'] = len(faces)
    
     return pred_boxes, pred_class, obj_counts, pred_score[:pred_t+1]
 
@@ -76,26 +70,45 @@ def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3)
     Main functions gets predictions and creates image.
     """
     #Query database to get image data
-    img_str = query(f"SELECT pic FROM Pics WHERE id = {img_ref}")    
+    img_str = query(f"SELECT pic FROM Pics WHERE id = {img_ref}") 
+
+        # Open image from sting 
+    img = Image.open(BytesIO(img_str))   
 
     # Run prediction function to get predictions
-    boxes, pred_cls, object_count, pred_score = predict(img_str, threshold)
+    boxes, pred_class, object_count, pred_score = predict(img, threshold)
     
-    # Load image using OpenCV
-
-    image = cv2.imread(img_path) 
+    # Convert image to use in OpenCV
+    img = np.asarray(img) # Read image with cv2
+    img = img[:, :, ::-1].copy() 
     
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
+    # Run facial recognition if persons are found in picture
+    if "person" in pred_class:
+        faces, conf = cv.detect_face(img)
+        object_count['faces'] = len(faces)
+        
+        for face in faces:
+            x1 = face[0]
+            y1 = face[1]
+            x2 = face[2]
+            y2 = face[3]
+    
+            cv2.rectangle(img, (x1,y1), (x2,y2), (0,0,255), 2)
+    
+    
+    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
     
     # annotate image with bounding boxes, class predictions, and prediction scores
     for i in range(len(boxes)):
         cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0,255,0), thickness=rect_th) 
-        cv2.putText(image, pred_cls[i] + " " + str(pred_score[i]), boxes[i][0],  
+        cv2.putText(image, pred_class[i] + " " + str(pred_score[i]), boxes[i][0],  
         cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th) 
+    
 
-
+    
     results = {}
 
     results['image'] = image
     results['object_count'] = object_count
     return results
+ 
