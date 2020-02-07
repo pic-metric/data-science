@@ -4,10 +4,12 @@ Predicts and counts objects in image files
 
 import cv2
 import cvlib as cv 
+from io import BytesIO
 import numpy as np
 from PIL import Image
 import torchvision
 import torchvision.transforms as T
+from query import get_image
 
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 model.eval()
@@ -33,7 +35,11 @@ def predict(img, threshold):
 
     # Define Tensor transfomation for Pytorch
     transform = T.Compose([T.ToTensor()])
-
+    
+    img = np.asarray(img)
+    
+    img = img[:,:,:3]
+    
     # Transform image
     image = transform(img)
 
@@ -70,10 +76,10 @@ def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3)
     Main functions gets predictions and creates image.
     """
     #Query database to get image data
-    img_str = query(f"SELECT pic FROM Pics WHERE id = {img_ref}") 
+    img_str = get_image(img_ref) 
 
-        # Open image from sting 
-    img = Image.open(BytesIO(img_str))   
+    # Open image from sting 
+    img = Image.open(BytesIO(img_str))  
 
     # Run prediction function to get predictions
     boxes, pred_class, object_count, pred_score = predict(img, threshold)

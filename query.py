@@ -1,0 +1,64 @@
+#import psychopg2
+from sqlalchemy import create_engine, select, update, insert
+from sqlalchemy.ext.automap import automap_base
+from dotenv import load_dotenv
+import os
+from base64 import b64decode, b64encode
+
+load_dotenv()
+
+engine = create_engine(os.getenv('DATABASE_URL'))
+
+"""def query_one(query):
+    curs = engine.connect()
+    response = curs.execute(query).fetchone()
+    curs.close()
+    return response
+
+
+def query_all(query):
+    curs = engine.connect()
+    response = curs.execute(query).fetchall()
+    curs.close()
+    return response"""
+
+
+def get_image(image_id):
+    Base = automap_base()
+    Base.prepare(engine, reflect=True)
+    pics = Base.classes.pics
+    query = select([pics.pic]).where(pics.id == image_id)
+    curs = engine.connect()
+    response = curs.execute(query).fetchone()[0]
+    image = b64decode(response)
+    curs.close()
+    return response
+
+
+def put_image(image_id, processed_image, atts):
+    Base = automap_base()
+    Base.prepare(engine, reflect=True)
+    pics = Base.classes.pics
+    attributes = Base.classes.attributes
+    curs = engine.connect()
+    ins1 = pics.update().where(id=image_id).values(processed_pic=processed_image).where(id=image_id)
+    curs.execute(ins1)
+    for key, value in atts.items():
+        ins2 = attributes.insert().values(
+            pic_id=image_id,
+            attribute=key,
+            count=value)
+        curs.execute(ins2)
+    curs.close()
+
+
+"""def produce_test_image(image_path):
+    with open(image_path, 'rb') as file:
+        text = file.read()
+        return text"""
+
+
+"""def query(query):
+    conn = engine.connect()
+    conn.execute(query)
+    conn.close()"""
