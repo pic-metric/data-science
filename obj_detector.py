@@ -36,10 +36,6 @@ def predict(img, threshold):
     # Define Tensor transfomation for Pytorch
     transform = T.Compose([T.ToTensor()])
     
-    img = np.asarray(img)
-    
-    img = img[:,:,:3]
-    
     # Transform image
     image = transform(img)
 
@@ -85,7 +81,7 @@ def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3)
     boxes, pred_class, object_count, pred_score = predict(img, threshold)
     
     # Convert image to use in OpenCV
-    img = np.asarray(img) # Read image with cv2
+    img = np.asarray(img) 
     img = img[:, :, ::-1].copy() 
     
     # Run facial recognition if persons are found in picture
@@ -114,7 +110,7 @@ def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3)
     
     results = {}
 
-    results['image'] = image
+    results['image'] = image.read()
     results['object_count'] = object_count
     return results
  
