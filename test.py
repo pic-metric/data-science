@@ -22,9 +22,9 @@ import cv2
     cv2.imwrite(outputs[i], cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
     print(results['object_count'])"""
 
-results = object_detection(img_ref=5)
+results = object_detection(img_ref=21)
 img = results['image']
-cv2.imwrite('Test_Output/picid_6.jpg', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-put_image(image_id=5, img, results['object_count'])
-print(results)
+#cv2.imwrite('Test_Output/picid_6.jpg', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+put_image(image_id=21, processed_image=img, atts=results['object_count'])
+print(img[:200], results['object_count'])
 #print(get_image(5))
