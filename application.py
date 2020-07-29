@@ -244,16 +244,16 @@ application.add_url_rule('/', 'index', (lambda: header_text +
 
 # Route for calling an image from the database and uploading a summary
 @application.route('/image_summary', methods=['POST'])
-# def output_1(message=''):
-#     message = 'please provide an image_id as stated in the landing page'
-#     return (message + home_link +footer_text)
+def output_1(message=''):
+    message = 'please provide an image_id as stated in the landing page'
+    return (message + home_link +footer_text)
 
 
 @application.route('/image_summary/<img_id>', methods=['GET'])
 def image_processing(img_id, message=''):
-    # get_image(img_id)
     image_summary = object_detection(img_id)
-    message = f'Image {img_id} successfully analyzed'
+    # put_image(img_id, image_summary)
+    message = f'Image {img_id} successfully analyzed {image_summary.items()}'
     return (message + home_link + footer_text)
 
 
@@ -266,7 +266,7 @@ def output(message=''):
 def does_something_esle(image_id=None, message=''):
     batch_id=batch_id
 
-    message= f'Batch summary should be returned here'
+    message= f'Batch processed'
     return (message + home_link + footer_text)
 
 # add a rule when the page is accessed with a name appended to the site
@@ -278,5 +278,5 @@ def does_something_esle(image_id=None, message=''):
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
-    application.debug = True
+    # application.debug = True
     application.run()
