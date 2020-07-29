@@ -15,7 +15,7 @@ Keras-Preprocessing==1.1.0
 MarkupSafe==1.1.1
 numpy==1.18.1
 opencv-python==4.2.0.32
-Pillow==7.0.0
+Pillow>=7.1.0
 progressbar==2.5
 pybase64==1.0.1
 python-dotenv==0.10.5
