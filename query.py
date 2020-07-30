@@ -41,7 +41,8 @@ def put_image(image_id, processed_image, atts):
     pics = Base.classes.pics
     attributes = Base.classes.attributes
     curs = engine.connect()
-    updt = update(pics).where(pics.id==image_id).values(processed_pic=processed_image)
+    updt = update(pics).where(pics.id == image_id)\
+                       .values(processed_pic=processed_image)
     curs.execute(updt)
     for key, value in atts.items():
         ins = insert(attributes).values(

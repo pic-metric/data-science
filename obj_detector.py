@@ -3,7 +3,7 @@ Predicts and counts objects in image files
 """
 
 import cv2
-import cvlib as cv 
+import cvlib as cv
 from io import BytesIO
 import numpy as np
 from PIL import Image
@@ -35,7 +35,7 @@ def predict(img, threshold):
 
     # Define Tensor transfomation for Pytorch
     transform = T.Compose([T.ToTensor()])
-    
+
     # Transform image
     image = transform(img)
 
@@ -48,7 +48,7 @@ def predict(img, threshold):
 
     # Get Prediction boxes
     pred_boxes = [[(i[0], i[1]), (i[2], i[3])]
-                  for i in list(pred[0]['boxes'].detach().numpy())]  
+                  for i in list(pred[0]['boxes'].detach().numpy())]
     pred_score = list(pred[0]['scores'].detach().numpy())
 
     # Get indexes for predictions above the threshold
@@ -63,54 +63,53 @@ def predict(img, threshold):
     obj_counts = {}
     for obj in set(pred_class):
         obj_counts[obj] = pred_class.count(obj)
-   
+
     return pred_boxes, pred_class, obj_counts, pred_score[:pred_t+1]
 
 
 def object_detection(img_ref, threshold=0.75, rect_th=3, text_size=1, text_th=3):
-    """ 
+    """
     Main functions gets predictions and creates image.
     """
-    #Query database to get image data
-    img_str = get_image(img_ref) 
+    # Query database to get image data
+    img_str = get_image(img_ref)
 
-    # Open image from sting 
-    img = Image.open(BytesIO(img_str))  
+    # Open image from sting
+    img = Image.open(BytesIO(img_str))
 
     # Run prediction function to get predictions
     boxes, pred_class, object_count, pred_score = predict(img, threshold)
-    
+
     # Convert image to use in OpenCV
-    img = np.asarray(img) 
-    img = img[:, :, ::-1].copy() 
-    
+    img = np.asarray(img)
+    img = img[:, :, ::-1].copy()
+
     # Run facial recognition if persons are found in picture
     if "person" in pred_class:
         faces, conf = cv.detect_face(img)
         object_count['faces'] = len(faces)
-        
+
         for face in faces:
             x1 = face[0]
             y1 = face[1]
             x2 = face[2]
             y2 = face[3]
-    
-            cv2.rectangle(img, (x1,y1), (x2,y2), (0,0,255), 2)
-    
-    
-    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
-    
-    # annotate image with bounding boxes, class predictions, and prediction scores
+
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+    image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    # annotate image with bounding boxes, class predictions, and prediction
+    # scores
     for i in range(len(boxes)):
-        cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0,255,0), thickness=rect_th) 
-        cv2.putText(image, pred_class[i] + " " + str(pred_score[i]), boxes[i][0],  
-        cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th) 
-    
+        cv2.rectangle(image, boxes[i][0], boxes[i][1], color=(0,255,0), thickness=rect_th)
+        cv2.putText(image, pred_class[i] + " " + str(pred_score[i]), boxes[i][0],
+        cv2.FONT_HERSHEY_SIMPLEX, text_size, (0,255,0), thickness=text_th)
+
     image = BytesIO(image)
-    
+
     results = {}
 
     results['image'] = image.read()
     results['object_count'] = object_count
     return results
- 
